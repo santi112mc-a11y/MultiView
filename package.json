@@ -1,0 +1,17 @@
+{
+  "name": "multiview",
+  "version": "1.0.0",
+  "description": "MultiView web panels with embedded Chromium",
+  "main": "src/main.js",
+  "author": "MultiView",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "make": "electron-forge make"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.8.3",
+    "@electron-forge/maker-squirrel": "^7.8.3",
+    "electron": "^37.0.0"
+  }
+}

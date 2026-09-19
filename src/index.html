@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MultiView Embedded</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:Arial,sans-serif;background:#080a0d;color:#f3f5f7;overflow:hidden}
+.setup{height:100%;display:flex;align-items:center;justify-content:center}.card{width:min(500px,92vw);background:#15181d;border:1px solid #2b3139;border-radius:18px;padding:32px;box-shadow:0 20px 60px #0009}
+.icon{font-size:32px;width:64px;height:64px;border-radius:16px;background:#222730;display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+h1{margin:0 0 8px;font-size:26px}.sub{color:#9da5b1;line-height:1.5;margin:0 0 24px}label{display:block;font-size:13px;color:#b9c0ca;margin:15px 0 7px}
+input,select{width:100%;background:#0e1115;color:#fff;border:1px solid #303640;border-radius:10px;padding:12px;outline:0}
+button{cursor:pointer}.primary{width:100%;border:0;border-radius:10px;padding:13px;margin-top:21px;background:#fff;color:#101216;font-weight:700}
+.workspace{display:none;width:100%;height:100%;flex-direction:column}.toolbar{height:58px;min-height:58px;background:#111419;border-bottom:1px solid #292e36;display:flex;align-items:center;gap:8px;padding:9px 12px}.title{font-weight:700;margin-right:auto}
+.tool{background:#1b2027;color:#e7eaf0;border:1px solid #303640;border-radius:8px;padding:8px 11px}.grid{flex:1;min-height:0;display:grid;gap:8px;padding:8px;background:#080a0d;overflow:hidden}
+.panel{position:relative;min-width:0;min-height:0;background:#11151a;border:1px solid #2b3139;border-radius:10px;overflow:hidden}.panel-head{position:absolute;z-index:20;top:6px;left:6px;right:6px;height:34px;display:flex;align-items:center;gap:5px;background:#111419dd;border:1px solid #303640;border-radius:7px;padding:4px;opacity:.35;transition:.15s}.panel:hover .panel-head{opacity:1}
+.num{font-size:11px;color:#b7bec8;margin-right:auto;padding-left:4px}.small{font-size:11px;background:#20252d;color:#e0e4e9;border:1px solid #353b45;border-radius:5px;padding:5px 7px}.panel-host{position:absolute;inset:0}
+.urlbox{position:absolute;z-index:30;top:46px;left:7px;right:7px;display:none;background:#0d1014f2;border:1px solid #303640;border-radius:8px;padding:7px}.panel.show .urlbox{display:block}.urlbox input{font-size:12px;padding:8px}.urlbox button{width:100%;margin-top:5px;padding:7px;border:0;border-radius:6px}
+.note{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:#7f8995;font-size:12px;padding:25px;background:#11151a}.note strong{display:block;color:#b9c0ca;margin-bottom:7px}
+</style>
+</head>
+<body>
+<section class="setup" id="setup">
+<div class="card">
+<div class="icon">▦</div><h1>Crear un MultiView</h1>
+<p class="sub">Cada panel tiene su propio navegador embebido. Esto permite cargar páginas que no aceptan iframes y adaptar reproductores de video.</p>
+<label>Cantidad de paneles</label><input id="count" type="number" min="1" max="30" value="4">
+<label>Distribución</label><select id="cols"><option value="auto">Automática</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+<button class="primary" id="create">Crear MultiView</button>
+</div></section>
+
+<section class="workspace" id="workspace">
+<div class="toolbar"><div class="title">▦ MultiView</div><button class="tool" id="add">＋ Panel</button><button class="tool" id="reset">Reconfigurar</button></div>
+<div class="grid" id="grid"></div>
+</section>
+
+<script>
+const setup=document.getElementById('setup'),workspace=document.getElementById('workspace'),grid=document.getElementById('grid');
+let count=0,mode='auto',panels=new Map();
+
+function cols(n){if(mode!=='auto')return +mode;if(n<=1)return 1;if(n<=4)return 2;if(n<=9)return 3;if(n<=16)return 4;if(n<=25)return 5;return 6}
+function rectFor(el){const r=el.getBoundingClientRect();return {x:r.left,y:r.top+58,width:r.width,height:r.height}}
+function sync(){
+  const c=cols(count);grid.style.gridTemplateColumns=`repeat(${c},minmax(0,1fr))`;grid.style.gridTemplateRows=`repeat(${Math.ceil(count/c)},minmax(0,1fr))`;
+  const out=[]; for(const [id,p] of panels){const r=p.el.getBoundingClientRect();out.push({id,rect:{x:r.left,y:r.top,width:r.width,height:r.height}})} window.multiview.updateRects(out);
+}
+function norm(v){v=v.trim();if(!v)return '';if(/^https?:\\/\\//i.test(v))return v;return 'https://'+v}
+
+function addPanel(){
+ count++;const id='p'+count;
+ const el=document.createElement('div');el.className='panel';
+ el.innerHTML=`<div class="panel-head"><span class="num">Panel ${count}</span><button class="small url">URL</button><button class="small reload">↻</button><button class="small clear">×</button></div><div class="panel-host"><div class="note"><div><strong>Cargá una URL</strong>El sitio se mostrará dentro de este rectángulo.</div></div></div><div class="urlbox"><input placeholder="https://ejemplo.com"><button>Cargar</button></div>`;
+ grid.appendChild(el);
+ const input=el.querySelector('.urlbox input'), p={el,id,url:''};panels.set(id,p);
+ function load(v){v=norm(v);if(!v)return;p.url=v;el.querySelector('.note')?.remove();window.multiview.createView({id,url:v,rect:(()=>{const r=el.getBoundingClientRect();return{x:r.left,y:r.top,width:r.width,height:r.height}})()});}
+ el.querySelector('.url').onclick=()=>{el.classList.toggle('show');if(el.classList.contains('show'))input.focus()};
+ el.querySelector('.urlbox button').onclick=()=>{load(input.value);el.classList.remove('show')};
+ input.onkeydown=e=>{if(e.key==='Enter'){load(input.value);el.classList.remove('show')}};
+ el.querySelector('.reload').onclick=()=>window.multiview.reload({id});
+ el.querySelector('.clear').onclick=()=>{window.multiview.removeView({id});p.url='';el.querySelector('.panel-host').innerHTML='<div class="note"><div><strong>Cargá una URL</strong>El sitio se mostrará dentro de este rectángulo.</div></div>'};
+ el.addEventListener('dragover',e=>e.preventDefault());
+ el.addEventListener('drop',e=>{e.preventDefault();const u=e.dataTransfer.getData('text/uri-list')||e.dataTransfer.getData('text/plain')||e.dataTransfer.getData('text');if(u)load(u.split('\\n')[0])});
+ applyCount();sync();
+}
+function applyCount(){const c=cols(count);grid.style.gridTemplateColumns=`repeat(${c},minmax(0,1fr))`;grid.style.gridTemplateRows=`repeat(${Math.ceil(count/c)},minmax(0,1fr))`}
+document.getElementById('create').onclick=()=>{count=Math.max(1,Math.min(30,+document.getElementById('count').value||4));mode=document.getElementById('cols').value;setup.style.display='none';workspace.style.display='flex';for(let i=0;i<count;i++)addPanel();sync()};
+document.getElementById('add').onclick=()=>{if(count<30)addPanel()};
+document.getElementById('reset').onclick=()=>location.reload();
+window.addEventListener('resize',sync);
+window.multiview.on('mv-error',d=>console.log('Panel error',d));
+</script>
+</body></html>
