@@ -1,0 +1,34 @@
+name: Build MultiView for Windows
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Descargar el proyecto
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Compilar MultiView
+        run: npm run make
+
+      - name: Subir MultiView para descargar
+        uses: actions/upload-artifact@v4
+        with:
+          name: MultiView-Windows
+          path: out/make/squirrel.windows/x64/*.exe
+          if-no-files-found: error
