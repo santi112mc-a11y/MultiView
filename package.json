@@ -1,6 +1,6 @@
 {
   "name": "multiview",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "MultiView web panels with embedded Chromium",
   "main": "src/main.js",
   "author": "MultiView",

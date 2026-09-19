@@ -16,7 +16,7 @@ function api(){
   return window.multiview;
 }
 function cols(n){if(mode!=='auto')return +mode;if(n<=1)return 1;if(n<=4)return 2;if(n<=9)return 3;if(n<=16)return 4;if(n<=25)return 5;return 6}
-function norm(v){v=String(v||'').trim();if(!v)return '';if(/^https?:\/\//i.test(v))return v;return 'https://'+v}
+function norm(v){v=String(v||'').trim();if(!v)return '';if(v.toLowerCase().startsWith('http://') || v.toLowerCase().startsWith('https://'))return v;return 'https://'+v}
 function setGrid(){const c=cols(count);grid.style.gridTemplateColumns=`repeat(${c},minmax(0,1fr))`;grid.style.gridTemplateRows=`repeat(${Math.ceil(count/c)},minmax(0,1fr))`}
 async function sync(){
   setGrid();
