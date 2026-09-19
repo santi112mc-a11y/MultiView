@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MultiView Embedded v1.0.1</title>
+<title>MultiView Embedded v1.0.3</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:Arial,sans-serif;background:#080a0d;color:#f3f5f7;overflow:hidden}
 .setup{height:100%;display:flex;align-items:center;justify-content:center}.card{width:min(500px,92vw);background:#15181d;border:1px solid #2b3139;border-radius:18px;padding:32px;box-shadow:0 20px 60px #0009}
@@ -101,7 +101,7 @@ document.getElementById('create').onclick=async()=>{
   showStatus('Creando MultiView...');
   try{
     const raw=Number(document.getElementById('count').value);
-    count=Math.max(1,Math.min(30,Number.isFinite(raw)?raw:4));
+    const targetCount=Math.max(1,Math.min(30,Number.isFinite(raw)?raw:4));
     mode=document.getElementById('cols').value;
     if(!window.multiview) throw new Error('La API de MultiView no está disponible.');
     const ping=await window.multiview.ping();
@@ -109,7 +109,9 @@ document.getElementById('create').onclick=async()=>{
     showStatus('Electron conectado. Creando paneles...');
     setup.style.display='none';
     workspace.style.display='flex';
-    for(let i=0;i<count;i++) await addPanel();
+    count=0;
+    panels.clear();
+    for(let i=0;i<targetCount;i++) await addPanel();
     await sync();
   }catch(e){
     console.error(e);
