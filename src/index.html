@@ -44,7 +44,13 @@ function sync(){
   const c=cols(count);grid.style.gridTemplateColumns=`repeat(${c},minmax(0,1fr))`;grid.style.gridTemplateRows=`repeat(${Math.ceil(count/c)},minmax(0,1fr))`;
   const out=[]; for(const [id,p] of panels){const r=p.el.getBoundingClientRect();out.push({id,rect:{x:r.left,y:r.top,width:r.width,height:r.height}})} window.multiview.updateRects(out);
 }
-function norm(v){v=v.trim();if(!v)return '';if(/^https?:\\/\\//i.test(v))return v;return 'https://'+v}
+function norm(v){
+  v=v.trim();
+  if(!v)return '';
+  const lower=v.toLowerCase();
+  if(lower.startsWith('http://') || lower.startsWith('https://')) return v;
+  return 'https://'+v;
+}
 
 function addPanel(){
  count++;const id='p'+count;
