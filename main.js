@@ -19,6 +19,9 @@ function createWindow() {
   });
 
   win.loadFile(path.join(__dirname, 'index.html'));
+  win.webContents.on('did-finish-load', () => {
+    console.log('MultiView renderer cargado correctamente');
+  });
 
   // Permitir reproducción multimedia sin exigir un click en el reproductor.
   session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {

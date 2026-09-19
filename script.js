@@ -1,40 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MultiView Embedded v1.0.1</title>
-<style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:Arial,sans-serif;background:#080a0d;color:#f3f5f7;overflow:hidden}
-.setup{height:100%;display:flex;align-items:center;justify-content:center}.card{width:min(500px,92vw);background:#15181d;border:1px solid #2b3139;border-radius:18px;padding:32px;box-shadow:0 20px 60px #0009}
-.icon{font-size:32px;width:64px;height:64px;border-radius:16px;background:#222730;display:flex;align-items:center;justify-content:center;margin-bottom:18px}
-h1{margin:0 0 8px;font-size:26px}.sub{color:#9da5b1;line-height:1.5;margin:0 0 24px}label{display:block;font-size:13px;color:#b9c0ca;margin:15px 0 7px}
-input,select{width:100%;background:#0e1115;color:#fff;border:1px solid #303640;border-radius:10px;padding:12px;outline:0}
-button{cursor:pointer}.primary{width:100%;border:0;border-radius:10px;padding:13px;margin-top:21px;background:#fff;color:#101216;font-weight:700}
-.workspace{display:none;width:100%;height:100%;flex-direction:column}.toolbar{height:58px;min-height:58px;background:#111419;border-bottom:1px solid #292e36;display:flex;align-items:center;gap:8px;padding:9px 12px}.title{font-weight:700;margin-right:auto}
-.tool{background:#1b2027;color:#e7eaf0;border:1px solid #303640;border-radius:8px;padding:8px 11px}.grid{flex:1;min-height:0;display:grid;gap:8px;padding:8px;background:#080a0d;overflow:hidden}
-.panel{position:relative;min-width:0;min-height:0;background:#11151a;border:1px solid #2b3139;border-radius:10px;overflow:hidden}.panel-head{position:absolute;z-index:20;top:6px;left:6px;right:6px;height:34px;display:flex;align-items:center;gap:5px;background:#111419dd;border:1px solid #303640;border-radius:7px;padding:4px;opacity:.35;transition:.15s}.panel:hover .panel-head{opacity:1}
-.num{font-size:11px;color:#b7bec8;margin-right:auto;padding-left:4px}.small{font-size:11px;background:#20252d;color:#e0e4e9;border:1px solid #353b45;border-radius:5px;padding:5px 7px}.panel-host{position:absolute;inset:0}
-.urlbox{position:absolute;z-index:30;top:46px;left:7px;right:7px;display:none;background:#0d1014f2;border:1px solid #303640;border-radius:8px;padding:7px}.panel.show .urlbox{display:block}.urlbox input{font-size:12px;padding:8px}.urlbox button{width:100%;margin-top:5px;padding:7px;border:0;border-radius:6px}
-.note{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:#7f8995;font-size:12px;padding:25px;background:#11151a}.note strong{display:block;color:#b9c0ca;margin-bottom:7px}
-</style>
-</head>
-<body>
-<section class="setup" id="setup">
-<div class="card">
-<div class="icon">▦</div><h1>Crear un MultiView</h1>
-<p class="sub">Cada panel tiene su propio navegador embebido. Esto permite cargar páginas que no aceptan iframes y adaptar reproductores de video.</p>
-<label>Cantidad de paneles</label><input id="count" type="number" min="1" max="30" value="4">
-<label>Distribución</label><select id="cols"><option value="auto">Automática</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
-<button class="primary" id="create">Crear MultiView</button>
-</div></section>
 
-<section class="workspace" id="workspace">
-<div class="toolbar"><div class="title">▦ MultiView</div><button class="tool" id="add">＋ Panel</button><button class="tool" id="reset">Reconfigurar</button></div>
-<div class="grid" id="grid"></div>
-</section>
-
-<script>
 const setup=document.getElementById('setup');
 const workspace=document.getElementById('workspace');
 const grid=document.getElementById('grid');
@@ -98,7 +62,6 @@ async function addPanel(){
 }
 
 document.getElementById('create').onclick=async()=>{
-  showStatus('Creando MultiView...');
   try{
     const raw=Number(document.getElementById('count').value);
     count=Math.max(1,Math.min(30,Number.isFinite(raw)?raw:4));
@@ -106,7 +69,6 @@ document.getElementById('create').onclick=async()=>{
     if(!window.multiview) throw new Error('La API de MultiView no está disponible.');
     const ping=await window.multiview.ping();
     if(!ping?.ok) throw new Error('Electron no respondió al ping.');
-    showStatus('Electron conectado. Creando paneles...');
     setup.style.display='none';
     workspace.style.display='flex';
     for(let i=0;i<count;i++) await addPanel();
@@ -123,5 +85,3 @@ if(window.multiview){
   window.multiview.on('mv-error',d=>showStatus(`Panel: ${d.errorDescription||'error de carga'}`,true));
   window.multiview.on('mv-ui-error',d=>showStatus(d.message||'Error de Electron',true));
 }
-</script>
-</body></html>
