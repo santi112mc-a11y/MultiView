@@ -66,7 +66,7 @@ function createView(id, url, rect) {
   });
 
   views.set(id, { view, rect, url });
-  win.setBrowserView(view);
+  win.addBrowserView(view);
   view.setBounds({
     x: Math.round(rect.x),
     y: Math.round(rect.y),
@@ -93,6 +93,14 @@ function createView(id, url, rect) {
     if (errorCode !== -3) {
       sendToUI('mv-error', { id, errorCode, errorDescription, url: validatedURL });
     }
+  });
+
+  view.webContents.on('render-process-gone', (_e, details) => {
+    sendToUI('mv-error', { id, errorCode: details?.exitCode, errorDescription: `Render process ended: ${details?.reason || 'unknown'}` });
+  });
+
+  view.webContents.on('console-message', (_e, level, message, line, sourceId) => {
+    if (level >= 2) sendToUI('mv-error', { id, errorDescription: `${message} (${sourceId}:${line})` });
   });
 
   view.webContents.setWindowOpenHandler(({ url }) => {
@@ -194,44 +202,69 @@ function removeView(id) {
   views.delete(id);
 }
 
-ipcMain.on('mv-create-view', (_e, { id, url, rect }) => {
-  if (!win) return;
-  createView(id, url, rect);
-});
+ipcMain.handle('mv-ping', () => ({ ok: true, message: 'MultiView IPC OK' }));
 
-ipcMain.on('mv-remove-view', (_e, { id }) => removeView(id));
-
-ipcMain.on('mv-navigate', (_e, { id, url }) => {
-  const item = views.get(id);
-  if (!item) return;
-  item.url = url;
-  item.view.webContents.loadURL(url);
-});
-
-ipcMain.on('mv-reload', (_e, { id }) => {
-  const item = views.get(id);
-  if (item) item.view.webContents.reload();
-});
-
-ipcMain.on('mv-open', (_e, { id }) => {
-  const item = views.get(id);
-  if (item) item.view.webContents.openDevTools({ mode: 'detach' });
-});
-
-ipcMain.on('mv-update-rects', (_e, rects) => {
-  if (!win) return;
-  for (const r of rects) {
-    const item = views.get(r.id);
-    if (item) {
-      item.rect = r.rect;
-      item.view.setBounds({
-        x: Math.round(r.rect.x),
-        y: Math.round(r.rect.y),
-        width: Math.max(1, Math.round(r.rect.width)),
-        height: Math.max(1, Math.round(r.rect.height))
-      });
-    }
+ipcMain.handle('mv-create-view', async (_e, data) => {
+  try {
+    if (!win || win.isDestroyed()) throw new Error('La ventana principal no está disponible.');
+    const { id, url, rect } = data || {};
+    if (!id) throw new Error('Falta el ID del panel.');
+    if (!url) throw new Error('Falta la URL.');
+    createView(id, url, rect);
+    return { ok: true, id, url };
+  } catch (error) {
+    sendToUI('mv-ui-error', { message: error?.message || String(error) });
+    return { ok: false, error: error?.message || String(error) };
   }
+});
+
+ipcMain.handle('mv-remove-view', async (_e, { id }) => {
+  try { removeView(id); return { ok: true }; }
+  catch (error) { return { ok: false, error: error?.message || String(error) }; }
+});
+
+ipcMain.handle('mv-navigate', async (_e, { id, url }) => {
+  try {
+    const item = views.get(id);
+    if (!item) throw new Error(`No existe el panel ${id}.`);
+    item.url = url;
+    await item.view.webContents.loadURL(url);
+    return { ok: true };
+  } catch (error) {
+    sendToUI('mv-ui-error', { message: error?.message || String(error) });
+    return { ok: false, error: error?.message || String(error) };
+  }
+});
+
+ipcMain.handle('mv-reload', (_e, { id }) => {
+  const item = views.get(id);
+  if (!item) return { ok: false, error: `No existe el panel ${id}.` };
+  item.view.webContents.reload();
+  return { ok: true };
+});
+
+ipcMain.handle('mv-update-rects', (_e, rects) => {
+  if (!win || win.isDestroyed()) return { ok: false, error: 'Ventana no disponible.' };
+  for (const r of Array.isArray(rects) ? rects : []) {
+    const item = views.get(r.id);
+    if (!item || !r.rect) continue;
+    item.rect = r.rect;
+    item.view.setBounds({
+      x: Math.round(r.rect.x),
+      y: Math.round(r.rect.y),
+      width: Math.max(1, Math.round(r.rect.width)),
+      height: Math.max(1, Math.round(r.rect.height))
+    });
+  }
+  return { ok: true };
+});
+
+process.on('uncaughtException', (error) => {
+  sendToUI('mv-ui-error', { message: `Error de Electron: ${error?.stack || error}` });
+});
+
+process.on('unhandledRejection', (error) => {
+  sendToUI('mv-ui-error', { message: `Error de promesa: ${error?.stack || error}` });
 });
 
 app.whenReady().then(createWindow);
