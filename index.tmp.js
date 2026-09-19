@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MultiView Embedded v1.0.5</title>
+<title>MultiView Embedded v1.0.3</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:Arial,sans-serif;background:#080a0d;color:#f3f5f7;overflow:hidden}
 .setup{height:100%;display:flex;align-items:center;justify-content:center}.card{width:min(500px,92vw);background:#15181d;border:1px solid #2b3139;border-radius:18px;padding:32px;box-shadow:0 20px 60px #0009}
@@ -14,7 +14,7 @@ button{cursor:pointer}.primary{width:100%;border:0;border-radius:10px;padding:13
 .workspace{display:none;width:100%;height:100%;flex-direction:column}.toolbar{height:58px;min-height:58px;background:#111419;border-bottom:1px solid #292e36;display:flex;align-items:center;gap:8px;padding:9px 12px}.title{font-weight:700;margin-right:auto}
 .tool{background:#1b2027;color:#e7eaf0;border:1px solid #303640;border-radius:8px;padding:8px 11px}.grid{flex:1;min-height:0;display:grid;gap:8px;padding:8px;background:#080a0d;overflow:hidden}
 .panel{position:relative;min-width:0;min-height:0;background:#11151a;border:1px solid #2b3139;border-radius:10px;overflow:hidden}.panel-head{position:absolute;z-index:20;top:6px;left:6px;right:6px;height:34px;display:flex;align-items:center;gap:5px;background:#111419dd;border:1px solid #303640;border-radius:7px;padding:4px;opacity:.35;transition:.15s}.panel:hover .panel-head{opacity:1}
-.num{font-size:11px;color:#b7bec8;margin-right:auto;padding-left:4px}.small{font-size:11px;background:#20252d;color:#e0e4e9;border:1px solid #353b45;border-radius:5px;padding:5px 7px;min-width:28px;height:26px}.zoom-label{font-size:10px;min-width:43px;text-align:center;color:#cbd2dc;background:#171b21;border:1px solid #353b45;border-radius:5px;padding:5px 3px;height:26px}.panel-host{position:absolute;inset:0}
+.num{font-size:11px;color:#b7bec8;margin-right:auto;padding-left:4px}.small{font-size:11px;background:#20252d;color:#e0e4e9;border:1px solid #353b45;border-radius:5px;padding:5px 7px}.panel-host{position:absolute;inset:0}
 .urlbox{position:absolute;z-index:30;top:46px;left:7px;right:7px;display:none;background:#0d1014f2;border:1px solid #303640;border-radius:8px;padding:7px}.panel.show .urlbox{display:block}.urlbox input{font-size:12px;padding:8px}.urlbox button{width:100%;margin-top:5px;padding:7px;border:0;border-radius:6px}
 .note{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:#7f8995;font-size:12px;padding:25px;background:#11151a}.note strong{display:block;color:#b9c0ca;margin-bottom:7px}
 </style>
@@ -69,7 +69,7 @@ async function addPanel(){
   const id='p'+number;
   const el=document.createElement('div');
   el.className='panel';
-  el.innerHTML=`<div class="panel-head"><span class="num">Panel ${number}</span><button class="small back" title="Atrás">←</button><button class="small zoom-out" title="Alejar">−</button><span class="zoom-label">100%</span><button class="small zoom-in" title="Acercar">＋</button><button class="small zoom-reset" title="Zoom inicial">1:1</button><button class="small url" title="Cambiar URL">URL</button><button class="small reload" title="Recargar">↻</button><button class="small clear" title="Limpiar">×</button></div><div class="panel-host"><div class="note"><div><strong>Cargá una URL</strong>El sitio se mostrará dentro de este rectángulo.</div></div></div><div class="urlbox"><input placeholder="https://ejemplo.com"><button>Cargar</button></div>`;
+  el.innerHTML=`<div class="panel-head"><span class="num">Panel ${number}</span><button class="small url">URL</button><button class="small reload">↻</button><button class="small clear">×</button></div><div class="panel-host"><div class="note"><div><strong>Cargá una URL</strong>El sitio se mostrará dentro de este rectángulo.</div></div></div><div class="urlbox"><input placeholder="https://ejemplo.com"><button>Cargar</button></div>`;
   grid.appendChild(el);
   const input=el.querySelector('.urlbox input');
   const p={el,id,url:''};panels.set(id,p);
@@ -85,26 +85,7 @@ async function addPanel(){
       }).catch(e=>showStatus(`No se pudo crear Panel ${number}: ${e.message}`,true));
     } catch(e) { showStatus(`No se pudo crear Panel ${number}: ${e.message}`,true); }
   }
-  const zoomLabel=el.querySelector('.zoom-label');
-  let zoom=1;
-  function showZoom(v){ zoom=v; zoomLabel.textContent=Math.round(v*100)+'%'; }
-  function changeZoom(delta){
-    const next=Math.max(0.25,Math.min(2,Math.round((zoom+delta)*20)/20));
-    showZoom(next);
-    api().setZoom({id,zoom:next}).catch(e=>showStatus(`Zoom: ${e.message}`,true));
-  }
-  el.querySelector('.back').onclick=()=>api().goBack({id});
-  el.querySelector('.zoom-out').onclick=()=>changeZoom(-0.05);
-  el.querySelector('.zoom-in').onclick=()=>changeZoom(0.05);
-  el.querySelector('.zoom-reset').onclick=()=>{
-    const next=/^https?:\/\/(?:www\.)?formula-timer\.com(?:\/|$)/i.test(p.url) ? 0.55 : 1;
-    showZoom(next);
-    api().setZoom({id,zoom:next}).catch(e=>showStatus(`Zoom: ${e.message}`,true));
-  };
-  el.querySelector('.url').onclick=()=>{
-    const value=window.prompt('URL del panel:',p.url||'https://');
-    if(value!==null && value.trim()) load(value);
-  };
+  el.querySelector('.url').onclick=()=>{el.classList.toggle('show');if(el.classList.contains('show'))input.focus()};
   el.querySelector('.urlbox button').onclick=()=>{load(input.value);el.classList.remove('show')};
   input.onkeydown=e=>{if(e.key==='Enter'){load(input.value);el.classList.remove('show')}};
   el.querySelector('.reload').onclick=()=>api().reload({id});
@@ -144,19 +125,11 @@ document.getElementById('create').onclick=()=>{
   }
 };
 document.getElementById('add').onclick=async()=>{if(count<30){await addPanel();await sync()}};
-document.getElementById('reset').onclick=async()=>{
-  try{ if(window.multiview) await window.multiview.clearAll(); }catch(e){}
-  location.reload();
-};
+document.getElementById('reset').onclick=()=>location.reload();
 window.addEventListener('resize',()=>sync());
 if(window.multiview){
   window.multiview.on('mv-error',d=>showStatus(`Panel: ${d.errorDescription||'error de carga'}`,true));
   window.multiview.on('mv-ui-error',d=>showStatus(d.message||'Error de Electron',true));
-  window.multiview.on('mv-popup-blocked',()=>showStatus('Publicidad bloqueada.',false));
-  window.multiview.on('mv-zoom',d=>{
-    const p=panels.get(d.id);
-    if(p){ const label=p.el.querySelector('.zoom-label'); if(label) label.textContent=Math.round(d.zoom*100)+'%'; }
-  });
 }
 </script>
 </body></html>

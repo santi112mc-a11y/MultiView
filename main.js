@@ -4,6 +4,26 @@ const path = require('path');
 let win;
 const views = new Map();
 
+const TVLIBRE_HOSTS = ['tvlibreonline.me'];
+const FORMULA_TIMER_HOSTS = ['formula-timer.com'];
+
+function hostMatches(host, list) {
+  const h = String(host || '').toLowerCase().replace(/^www\./, '');
+  return list.some(base => h === base || h.endsWith('.' + base));
+}
+
+function isTVLibreURL(url) {
+  try { return hostMatches(new URL(url).hostname, TVLIBRE_HOSTS); } catch { return false; }
+}
+
+function isFormulaTimerURL(url) {
+  try { return hostMatches(new URL(url).hostname, FORMULA_TIMER_HOSTS); } catch { return false; }
+}
+
+function clearAllViews() {
+  for (const id of [...views.keys()]) removeView(id);
+}
+
 function createWindow() {
   win = new BrowserWindow({
     width: 1500,
@@ -33,27 +53,57 @@ function createWindow() {
   win.on('maximize', layoutViews);
   win.on('unmaximize', layoutViews);
   win.on('closed', () => {
-    for (const v of views.values()) v.view.webContents.destroy();
-    views.clear();
+    clearAllViews();
     win = null;
   });
 }
 
+const PANEL_HEADER_HEIGHT = 42;
+
+function viewBounds(rect) {
+  return {
+    x: Math.round(rect.x),
+    y: Math.round(rect.y + PANEL_HEADER_HEIGHT),
+    width: Math.max(1, Math.round(rect.width)),
+    height: Math.max(1, Math.round(rect.height - PANEL_HEADER_HEIGHT))
+  };
+}
+
 function layoutViews() {
   if (!win) return;
-  for (const [id, item] of views) {
-    const rect = item.rect;
-    item.view.setBounds({
-      x: Math.round(rect.x),
-      y: Math.round(rect.y),
-      width: Math.max(1, Math.round(rect.width)),
-      height: Math.max(1, Math.round(rect.height))
-    });
+  for (const [, item] of views) {
+    item.view.setBounds(viewBounds(item.rect));
   }
 }
 
 function sendToUI(channel, data) {
   if (win && !win.isDestroyed()) win.webContents.send(channel, data);
+}
+
+function defaultZoomForURL(url) {
+  return isFormulaTimerURL(url) ? 0.55 : 1;
+}
+
+function applyPageZoom(item) {
+  if (!item || item.view.webContents.isDestroyed()) return;
+  const currentURL = item.view.webContents.getURL() || item.url || '';
+  try {
+    // Conservamos el zoom elegido por el usuario al navegar dentro del mismo panel.
+    // Al cargar una URL nueva, se usa el zoom inicial apropiado para ese sitio.
+    if (typeof item.zoom !== 'number') item.zoom = defaultZoomForURL(currentURL);
+    item.view.webContents.setZoomFactor(item.zoom);
+    sendToUI('mv-zoom', { id: item.id, zoom: item.zoom });
+  } catch {}
+}
+
+function setViewZoom(id, zoom) {
+  const item = views.get(id);
+  if (!item || item.view.webContents.isDestroyed()) return { ok:false, error:`No existe el panel ${id}.` };
+  const value = Math.max(0.25, Math.min(2, Number(zoom) || 1));
+  item.zoom = Math.round(value * 100) / 100;
+  item.view.webContents.setZoomFactor(item.zoom);
+  sendToUI('mv-zoom', { id, zoom:item.zoom });
+  return { ok:true, zoom:item.zoom };
 }
 
 function createView(id, url, rect) {
@@ -68,24 +118,36 @@ function createView(id, url, rect) {
     }
   });
 
-  views.set(id, { view, rect, url });
+  views.set(id, { view, rect, url, zoom: defaultZoomForURL(url) });
   win.addBrowserView(view);
-  view.setBounds({
-    x: Math.round(rect.x),
-    y: Math.round(rect.y),
-    width: Math.max(1, Math.round(rect.width)),
-    height: Math.max(1, Math.round(rect.height))
-  });
-  view.setAutoResize({ width: true, height: true });
-
+  view.setBounds(viewBounds(rect));
   view.webContents.on('did-finish-load', () => {
+    applyPageZoom(views.get(id));
     injectSiteMode(id);
     sendToUI('mv-loaded', { id, url: view.webContents.getURL() });
   });
 
   view.webContents.on('did-navigate', () => {
+    applyPageZoom(views.get(id));
     injectSiteMode(id);
     sendToUI('mv-navigated', { id, url: view.webContents.getURL() });
+  });
+
+  // Evita que una publicidad saque al panel de TVLibre hacia otro sitio.
+  view.webContents.on('will-navigate', (event, destinationURL) => {
+    const currentURL = view.webContents.getURL();
+    if (isTVLibreURL(currentURL) && !isTVLibreURL(destinationURL)) {
+      event.preventDefault();
+      sendToUI('mv-popup-blocked', { id });
+    }
+  });
+
+  view.webContents.on('will-redirect', (event, destinationURL) => {
+    const currentURL = view.webContents.getURL();
+    if (isTVLibreURL(currentURL) && !isTVLibreURL(destinationURL)) {
+      event.preventDefault();
+      sendToUI('mv-popup-blocked', { id });
+    }
   });
 
   view.webContents.on('did-navigate-in-page', () => {
@@ -107,7 +169,8 @@ function createView(id, url, rect) {
   });
 
   view.webContents.setWindowOpenHandler(({ url }) => {
-    view.webContents.loadURL(url);
+    // Nunca abrir popups/publicidad en otra navegación del mismo panel.
+    sendToUI('mv-popup-blocked', { id });
     return { action: 'deny' };
   });
 
@@ -226,6 +289,21 @@ ipcMain.handle('mv-remove-view', async (_e, { id }) => {
   catch (error) { return { ok: false, error: error?.message || String(error) }; }
 });
 
+ipcMain.handle('mv-go-back', (_e, { id }) => {
+  const item = views.get(id);
+  if (!item) return { ok: false, error: `No existe el panel ${id}.` };
+  if (item.view.webContents.canGoBack()) {
+    item.view.webContents.goBack();
+    return { ok: true };
+  }
+  return { ok: false, error: 'No hay una página anterior.' };
+});
+
+ipcMain.handle('mv-clear-all', () => {
+  clearAllViews();
+  return { ok: true };
+});
+
 ipcMain.handle('mv-navigate', async (_e, { id, url }) => {
   try {
     const item = views.get(id);
@@ -237,6 +315,11 @@ ipcMain.handle('mv-navigate', async (_e, { id, url }) => {
     sendToUI('mv-ui-error', { message: error?.message || String(error) });
     return { ok: false, error: error?.message || String(error) };
   }
+});
+
+ipcMain.handle('mv-set-zoom', (_e, { id, zoom }) => {
+  try { return setViewZoom(id, zoom); }
+  catch (error) { return { ok:false, error:error?.message || String(error) }; }
 });
 
 ipcMain.handle('mv-reload', (_e, { id }) => {
@@ -252,12 +335,7 @@ ipcMain.handle('mv-update-rects', (_e, rects) => {
     const item = views.get(r.id);
     if (!item || !r.rect) continue;
     item.rect = r.rect;
-    item.view.setBounds({
-      x: Math.round(r.rect.x),
-      y: Math.round(r.rect.y),
-      width: Math.max(1, Math.round(r.rect.width)),
-      height: Math.max(1, Math.round(r.rect.height))
-    });
+    item.view.setBounds(viewBounds(r.rect));
   }
   return { ok: true };
 });

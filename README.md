@@ -1,21 +1,9 @@
-# MultiView Embedded
+# MultiView Windows v7
 
-Esta versión usa Electron + BrowserView, por lo que cada panel es un navegador Chromium independiente.
+Incluye aislamiento por panel, bloqueo de popups/navegaciones publicitarias de TVLibre, reproductor TVLibre contenido dentro del panel, zoom inicial para Formula Timer y control de zoom independiente por panel.
 
-## Qué resuelve
-- Las páginas no dependen de `<iframe>`.
-- Formula-Timer puede cargarse aunque el sitio bloquee `frame-ancestors`/iframes.
-- Para TVLibre (`tvlibreonline.me`), el programa busca el elemento `<video>` y oculta el resto de la página, dejando el reproductor ocupando todo el rectángulo del panel.
-- El video usa `object-fit: contain`, por lo que se mantiene completo sin recortarlo.
-- Cada panel tiene URL, recargar y limpiar.
-- Se puede arrastrar una URL/enlace a un panel.
+## Zoom
+Cada panel tiene `−`, porcentaje, `＋` y `1:1`. El zoom va de 25% a 200% en pasos de 5%. Formula Timer inicia en 55%; los demás sitios en 100%.
 
-## Ejecutar para probar
-1. Instalar Node.js LTS.
-2. Abrir una terminal en esta carpeta.
-3. Ejecutar `npm install`
-4. Ejecutar `npm start`
-
-## Importante
-Este ZIP es el proyecto fuente. No es un EXE ya compilado.
-Para distribuirlo como EXE portátil habría que empaquetarlo con Electron/Forge/Builder en Windows.
+## Compilación
+Usar GitHub Actions del repositorio para generar la versión Windows.
