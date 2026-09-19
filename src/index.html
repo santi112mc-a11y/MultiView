@@ -69,7 +69,15 @@ function addPanel(){
  applyCount();sync();
 }
 function applyCount(){const c=cols(count);grid.style.gridTemplateColumns=`repeat(${c},minmax(0,1fr))`;grid.style.gridTemplateRows=`repeat(${Math.ceil(count/c)},minmax(0,1fr))`}
-document.getElementById('create').onclick=()=>{count=Math.max(1,Math.min(30,+document.getElementById('count').value||4));mode=document.getElementById('cols').value;setup.style.display='none';workspace.style.display='flex';for(let i=0;i<count;i++)addPanel();sync()};
+document.getElementById('create').onclick=()=>{
+  const desired=Math.max(1,Math.min(30,+document.getElementById('count').value||4));
+  count=0;
+  mode=document.getElementById('cols').value;
+  setup.style.display='none';
+  workspace.style.display='flex';
+  for(let i=0;i<desired;i++)addPanel();
+  sync();
+};
 document.getElementById('add').onclick=()=>{if(count<30)addPanel()};
 document.getElementById('reset').onclick=()=>location.reload();
 window.addEventListener('resize',sync);
