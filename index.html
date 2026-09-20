@@ -69,7 +69,7 @@ async function addPanel(){
   const id='p'+number;
   const el=document.createElement('div');
   el.className='panel';
-  el.innerHTML=`<div class="panel-head"><span class="num">Panel ${number}</span><button class="small back" title="Atrás">←</button><button class="small zoom-out" title="Alejar">−</button><span class="zoom-label">100%</span><button class="small zoom-in" title="Acercar">＋</button><button class="small zoom-reset" title="Zoom inicial">1:1</button><button class="small url" title="Cambiar URL">URL</button><button class="small reload" title="Recargar">↻</button><button class="small clear" title="Limpiar">×</button></div><div class="panel-host"><div class="note"><div><strong>Cargá una URL</strong>El sitio se mostrará dentro de este rectángulo.</div></div></div><div class="urlbox"><input placeholder="https://ejemplo.com"><button>Cargar</button></div>`;
+  el.innerHTML=`<div class="panel-head"><span class="num">Panel ${number}</span><button class="small back" title="Atrás">←</button><button class="small zoom-out" title="Alejar">−</button><button class="zoom-label" title="Elegir zoom exacto">100%</button><button class="small zoom-in" title="Acercar">＋</button><button class="small zoom-reset" title="Zoom inicial">1:1</button><button class="small url" title="Cambiar URL">URL</button><button class="small reload" title="Recargar">↻</button><button class="small clear" title="Limpiar">×</button></div><div class="panel-host"><div class="note"><div><strong>Cargá una URL</strong>El sitio se mostrará dentro de este rectángulo.</div></div></div><div class="urlbox"><input placeholder="https://ejemplo.com"><button>Cargar</button></div>`;
   grid.appendChild(el);
   const input=el.querySelector('.urlbox input');
   const p={el,id,url:''};panels.set(id,p);
@@ -88,6 +88,13 @@ async function addPanel(){
   const zoomLabel=el.querySelector('.zoom-label');
   let zoom=1;
   function showZoom(v){ zoom=v; zoomLabel.textContent=Math.round(v*100)+'%'; }
+  zoomLabel.onclick=()=>{
+    const raw=window.prompt('Zoom del panel (25 a 200):',String(Math.round(zoom*100)));
+    if(raw===null)return;
+    const pct=Math.max(25,Math.min(200,Number(raw)||100));
+    showZoom(pct/100);
+    api().setZoom({id,zoom:pct/100}).catch(e=>showStatus(`Zoom: ${e.message}`,true));
+  };
   function changeZoom(delta){
     const next=Math.max(0.25,Math.min(2,Math.round((zoom+delta)*20)/20));
     showZoom(next);

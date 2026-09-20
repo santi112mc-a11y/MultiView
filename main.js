@@ -7,6 +7,22 @@ const views = new Map();
 const TVLIBRE_HOSTS = ['tvlibreonline.me'];
 const FORMULA_TIMER_HOSTS = ['formula-timer.com'];
 
+// Dominios/patrones publicitarios comunes. Se usan solo para bloquear
+// recursos claramente identificables como publicidad, sin bloquear el stream.
+const AD_URL_PATTERNS = [
+  /doubleclick\.net/i, /googlesyndication\.com/i, /googleadservices\.com/i,
+  /adservice\.google\.com/i, /pagead2\.googlesyndication\.com/i,
+  /popads\./i, /popcash\./i, /propellerads\./i, /adnxs\./i,
+  /advertising\./i, /adsystem\./i, /adserver\./i, /adserver\./i,
+  /banner\./i, /popup\./i, /clickunder/i, /onclickads/i, /exoclick\./i,
+  /trafficjunky\./i, /juicyads\./i, /adsterra\./i
+];
+
+function looksLikeAdURL(url) {
+  const u = String(url || '');
+  return AD_URL_PATTERNS.some(re => re.test(u));
+}
+
 function hostMatches(host, list) {
   const h = String(host || '').toLowerCase().replace(/^www\./, '');
   return list.some(base => h === base || h.endsWith('.' + base));
@@ -47,6 +63,12 @@ function createWindow() {
   session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
     const allowed = ['media', 'fullscreen'];
     callback(allowed.includes(permission));
+  });
+
+  // Filtro global de recursos publicitarios conocidos. No bloquea el video por
+  // defecto; solo URLs que coinciden claramente con patrones de anuncios.
+  session.defaultSession.webRequest.onBeforeRequest((details, callback) => {
+    callback({ cancel: looksLikeAdURL(details.url) });
   });
 
   win.on('resize', layoutViews);
@@ -133,22 +155,18 @@ function createView(id, url, rect) {
     sendToUI('mv-navigated', { id, url: view.webContents.getURL() });
   });
 
-  // Evita que una publicidad saque al panel de TVLibre hacia otro sitio.
-  view.webContents.on('will-navigate', (event, destinationURL) => {
+  // Evita que TVLibre o sus iframes naveguen hacia páginas de publicidad.
+  const blockTVAdNavigation = (event, destinationURL) => {
     const currentURL = view.webContents.getURL();
-    if (isTVLibreURL(currentURL) && !isTVLibreURL(destinationURL)) {
+    if (isTVLibreURL(currentURL) && (!isTVLibreURL(destinationURL) || looksLikeAdURL(destinationURL))) {
       event.preventDefault();
       sendToUI('mv-popup-blocked', { id });
     }
-  });
+  };
 
-  view.webContents.on('will-redirect', (event, destinationURL) => {
-    const currentURL = view.webContents.getURL();
-    if (isTVLibreURL(currentURL) && !isTVLibreURL(destinationURL)) {
-      event.preventDefault();
-      sendToUI('mv-popup-blocked', { id });
-    }
-  });
+  view.webContents.on('will-navigate', (event, destinationURL) => blockTVAdNavigation(event, destinationURL));
+  view.webContents.on('will-frame-navigate', (event, details) => blockTVAdNavigation(event, details.url));
+  view.webContents.on('will-redirect', (event, destinationURL) => blockTVAdNavigation(event, destinationURL));
 
   view.webContents.on('did-navigate-in-page', () => {
     injectSiteMode(id);
@@ -200,6 +218,15 @@ async function injectIntoFrame(frame) {
         ';width:100%!important;height:100%!important;overflow:hidden!important;margin:0!important;padding:0!important;';
       document.body.style.cssText +=
         ';width:100%!important;height:100%!important;overflow:hidden!important;margin:0!important;padding:0!important;background:#000!important;';
+
+      // Ocultar elementos publicitarios comunes dentro de la propia página.
+      const adSelector = [
+        '[id*="advert" i]','[id*="banner" i]','[id*="popup" i]','[class*="advert" i]',
+        '[class*="banner" i]','[class*="popup" i]','[class*="popunder" i]',
+        'iframe[src*="doubleclick" i]','iframe[src*="googlesyndication" i]',
+        'iframe[src*="adsystem" i]','iframe[src*="popads" i]'
+      ].join(',');
+      document.querySelectorAll(adSelector).forEach(el => el.style.setProperty('display','none','important'));
 
       // Ocultar todo salvo la cadena de contenedores que lleva al video.
       let keep = new Set();

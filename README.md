@@ -1,9 +1,5 @@
-# MultiView Windows v7
+# MultiView v8
 
-Incluye aislamiento por panel, bloqueo de popups/navegaciones publicitarias de TVLibre, reproductor TVLibre contenido dentro del panel, zoom inicial para Formula Timer y control de zoom independiente por panel.
+Correcciones adicionales sobre v7: bloqueo de recursos publicitarios comunes, bloqueo de navegaciones publicitarias también dentro de iframes, limpieza visual de anuncios TVLibre, controles de zoom por panel y campo para elegir un porcentaje exacto.
 
-## Zoom
-Cada panel tiene `−`, porcentaje, `＋` y `1:1`. El zoom va de 25% a 200% en pasos de 5%. Formula Timer inicia en 55%; los demás sitios en 100%.
-
-## Compilación
-Usar GitHub Actions del repositorio para generar la versión Windows.
+Reemplazar los archivos del proyecto manteniendo `.git` y ejecutar el workflow de Windows.
