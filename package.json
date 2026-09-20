@@ -1,7 +1,7 @@
 {
-  "name": "multiview-embedded",
-  "productName": "MultiView",
-  "version": "1.0.0",
+  "name": "multiview-v14-test",
+  "productName": "MultiView V14 TEST",
+  "version": "1.0.14",
   "description": "MultiView con un iframe independiente y aislado por panel.",
   "author": "Santi Ola",
   "main": "src/main.js",
