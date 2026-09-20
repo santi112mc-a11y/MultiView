@@ -1,7 +1,10 @@
-const { app, BrowserWindow, BrowserView, ipcMain, session } = require('electron');
+const { app, BrowserWindow, WebContentsView, ipcMain, session } = require('electron');
 const path = require('path');
 
 let win;
+// Un WebContentsView independiente por panel.
+// A diferencia de BrowserView, los paneles se administran como hijos separados
+// del contentView de la ventana y no se reemplazan entre sí.
 const views = new Map();
 
 const TVLIBRE_HOSTS = ['tvlibreonline.me'];
@@ -131,7 +134,7 @@ function setViewZoom(id, zoom) {
 function createView(id, url, rect) {
   if (views.has(id)) removeView(id);
 
-  const view = new BrowserView({
+  const view = new WebContentsView({
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
@@ -141,7 +144,7 @@ function createView(id, url, rect) {
   });
 
   views.set(id, { view, rect, url, zoom: defaultZoomForURL(url) });
-  win.addBrowserView(view);
+  win.contentView.addChildView(view);
   view.setBounds(viewBounds(rect));
   view.webContents.on('did-finish-load', () => {
     applyPageZoom(views.get(id));
@@ -290,7 +293,7 @@ async function injectSiteMode(id) {
 function removeView(id) {
   const item = views.get(id);
   if (!item) return;
-  try { win.removeBrowserView(item.view); } catch {}
+  try { win.contentView.removeChildView(item.view); } catch {}
   try { item.view.webContents.destroy(); } catch {}
   views.delete(id);
 }

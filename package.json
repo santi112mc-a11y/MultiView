@@ -1,7 +1,7 @@
 {
   "name": "multiview",
-  "version": "1.0.5",
-  "description": "MultiView web panels with embedded Chromium",
+  "version": "1.0.6",
+  "description": "MultiView web panels with independent embedded Chromium views",
   "main": "src/main.js",
   "author": "MultiView",
   "license": "MIT",
