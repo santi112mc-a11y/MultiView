@@ -1,10 +1,16 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
+const allowedEvents = ['mv-ui-error', 'mv-status'];
+
 contextBridge.exposeInMainWorld('multiview', {
-  ping: () => ipcRenderer.invoke('mv-ping'),
+  goBack: (data) => ipcRenderer.invoke('mv-go-back', data),
+  reload: (data) => ipcRenderer.invoke('mv-reload-frame', data),
+  setZoom: (data) => ipcRenderer.invoke('mv-set-zoom', data),
+  clearFrame: (data) => ipcRenderer.invoke('mv-clear-frame', data),
+  registerPanel: (data) => ipcRenderer.send('mv-register-panel', data),
+  clearAll: () => ipcRenderer.invoke('mv-clear-all'),
   on: (channel, cb) => {
-    const allowed = ['mv-ui-error'];
-    if (!allowed.includes(channel)) return;
-    ipcRenderer.on(channel, (_e, data) => cb(data));
+    if (!allowedEvents.includes(channel)) return;
+    ipcRenderer.on(channel, (_event, data) => cb(data));
   }
 });

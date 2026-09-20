@@ -1,12 +1,12 @@
-# MultiView v11
+# MultiView v13
 
-Esta versión mantiene un `<webview>` independiente por panel, pero mueve el bloqueo de navegación/publicidad al proceso principal de Electron.
+Esta versión cambia la arquitectura de los paneles: ya no usa `BrowserView`, `WebContentsView` ni `<webview>` para el contenido remoto. Cada panel es un `<iframe>` real dentro del layout HTML.
 
-Cambios clave:
-- Cada panel usa una partición persistente distinta.
-- Se bloquean popups/ventanas nuevas desde los paneles.
-- El bloqueo de publicidad se aplica a la sesión de cada webview.
-- Las redirecciones publicitarias se bloquean desde `webContents.will-navigate` y `will-frame-navigate`.
-- TVLibre no puede sacar la navegación principal del panel hacia otro dominio.
-- Se conserva el zoom individual y Formula Timer al 55% inicial.
-- `author` está incluido para que Squirrel pueda generar el instalador.
+Objetivo principal:
+- cada panel mantiene su propio contenido sin tapar a los demás;
+- ningún contenido remoto puede quedar flotando sobre la pantalla de configuración;
+- los iframes están sandboxeados sin permiso de popups ni navegación superior;
+- se bloquean endpoints publicitarios conocidos;
+- se retiran restricciones de `X-Frame-Options`/CSP para los subframes embebidos desde la sesión Electron;
+- Formula Timer arranca con zoom del 55%;
+- TVLibre intenta reducirse al reproductor de video dentro de su panel.
