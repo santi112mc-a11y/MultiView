@@ -2,6 +2,7 @@
   "name": "multiview-embedded",
   "version": "1.0.0",
   "description": "MultiView con paneles web independientes",
+  "author": "Santi Ola",
   "main": "src/main.js",
   "scripts": {
     "start": "electron-forge start",
