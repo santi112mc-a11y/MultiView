@@ -1,13 +1,13 @@
 module.exports = {
   packagerConfig: {
     asar: true,
-    executableName: "MultiView"
+    executableName: 'MultiView'
   },
   makers: [
     {
-      name: "@electron-forge/maker-squirrel",
+      name: '@electron-forge/maker-squirrel',
       config: {
-        name: "MultiView"
+        name: 'multiview_embedded'
       }
     }
   ]

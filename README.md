@@ -1,9 +1,8 @@
-# MultiView v9
+# MultiView v10
 
-Correcciones adicionales sobre v7: bloqueo de recursos publicitarios comunes, bloqueo de navegaciones publicitarias también dentro de iframes, limpieza visual de anuncios TVLibre, controles de zoom por panel y campo para elegir un porcentaje exacto.
+Esta versión cambia la arquitectura de los paneles: cada rectángulo usa un `<webview>` de Electron independiente. Esto evita que cargar una página en un panel reemplace o tape el contenido de otro.
 
-Reemplazar los archivos del proyecto manteniendo `.git` y ejecutar el workflow de Windows.
+Incluye zoom independiente, Formula Timer con zoom inicial 55%, navegación atrás, recarga, limpieza, TVLibre con modo reproductor y bloqueo básico de popups/publicidad.
 
-
-### Cambio principal de v9
-Cada panel usa un `WebContentsView` independiente en lugar de `BrowserView`. Esto evita que al cargar una URL en otro panel el contenido del panel anterior sea reemplazado o quede tapado por la vista nueva.
+## GitHub Actions
+Reemplazar los archivos del proyecto normal por estos, conservando `.git`, y ejecutar el workflow de Windows.

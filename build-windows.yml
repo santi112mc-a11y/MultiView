@@ -1,33 +1,20 @@
-name: Build MultiView for Windows
-
+name: Build Windows
 on:
   workflow_dispatch:
   push:
-    tags:
-      - "v*"
-
+    branches: [ main, master ]
 jobs:
-  build-windows:
+  build:
     runs-on: windows-latest
-
     steps:
-      - name: Descargar el proyecto
-        uses: actions/checkout@v4
-
-      - name: Instalar Node.js para la compilación
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 22
-
-      - name: Instalar dependencias
-        run: npm install
-
-      - name: Compilar MultiView
-        run: npm run make
-
-      - name: Subir instalador de MultiView
-        uses: actions/upload-artifact@v4
+          node-version: 20
+          cache: npm
+      - run: npm install
+      - run: npm run make
+      - uses: actions/upload-artifact@v4
         with:
           name: MultiView-Windows
-          path: out/make/squirrel.windows/x64/*.exe
-          if-no-files-found: error
+          path: out/make/**/*

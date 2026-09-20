@@ -3,167 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MultiView Embedded v1.0.5</title>
+<title>MultiView</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:Arial,sans-serif;background:#080a0d;color:#f3f5f7;overflow:hidden}
-.setup{height:100%;display:flex;align-items:center;justify-content:center}.card{width:min(500px,92vw);background:#15181d;border:1px solid #2b3139;border-radius:18px;padding:32px;box-shadow:0 20px 60px #0009}
-.icon{font-size:32px;width:64px;height:64px;border-radius:16px;background:#222730;display:flex;align-items:center;justify-content:center;margin-bottom:18px}
-h1{margin:0 0 8px;font-size:26px}.sub{color:#9da5b1;line-height:1.5;margin:0 0 24px}label{display:block;font-size:13px;color:#b9c0ca;margin:15px 0 7px}
-input,select{width:100%;background:#0e1115;color:#fff;border:1px solid #303640;border-radius:10px;padding:12px;outline:0}
-button{cursor:pointer}.primary{width:100%;border:0;border-radius:10px;padding:13px;margin-top:21px;background:#fff;color:#101216;font-weight:700}
-.workspace{display:none;width:100%;height:100%;flex-direction:column}.toolbar{height:58px;min-height:58px;background:#111419;border-bottom:1px solid #292e36;display:flex;align-items:center;gap:8px;padding:9px 12px}.title{font-weight:700;margin-right:auto}
-.tool{background:#1b2027;color:#e7eaf0;border:1px solid #303640;border-radius:8px;padding:8px 11px}.grid{flex:1;min-height:0;display:grid;gap:8px;padding:8px;background:#080a0d;overflow:hidden}
-.panel{position:relative;min-width:0;min-height:0;background:#11151a;border:1px solid #2b3139;border-radius:10px;overflow:hidden}.panel-head{position:absolute;z-index:20;top:6px;left:6px;right:6px;height:34px;display:flex;align-items:center;gap:5px;background:#111419dd;border:1px solid #303640;border-radius:7px;padding:4px;opacity:.35;transition:.15s}.panel:hover .panel-head{opacity:1}
-.num{font-size:11px;color:#b7bec8;margin-right:auto;padding-left:4px}.small{font-size:11px;background:#20252d;color:#e0e4e9;border:1px solid #353b45;border-radius:5px;padding:5px 7px;min-width:28px;height:26px}.zoom-label{font-size:10px;min-width:43px;text-align:center;color:#cbd2dc;background:#171b21;border:1px solid #353b45;border-radius:5px;padding:5px 3px;height:26px}.panel-host{position:absolute;inset:0}
-.urlbox{position:absolute;z-index:30;top:46px;left:7px;right:7px;display:none;background:#0d1014f2;border:1px solid #303640;border-radius:8px;padding:7px}.panel.show .urlbox{display:block}.urlbox input{font-size:12px;padding:8px}.urlbox button{width:100%;margin-top:5px;padding:7px;border:0;border-radius:6px}
-.note{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:#7f8995;font-size:12px;padding:25px;background:#11151a}.note strong{display:block;color:#b9c0ca;margin-bottom:7px}
+.setup{height:100%;display:flex;align-items:center;justify-content:center}.card{width:min(500px,92vw);background:#15181d;border:1px solid #2b3139;border-radius:18px;padding:32px;box-shadow:0 20px 60px #0009}.icon{font-size:32px;width:64px;height:64px;border-radius:16px;background:#222730;display:flex;align-items:center;justify-content:center;margin-bottom:18px}h1{margin:0 0 8px;font-size:26px}.sub{color:#9da5b1;line-height:1.5;margin:0 0 24px}label{display:block;font-size:13px;color:#b9c0ca;margin:15px 0 7px}input,select{width:100%;background:#0e1115;color:#fff;border:1px solid #303640;border-radius:10px;padding:12px;outline:0}button{cursor:pointer}.primary{width:100%;border:0;border-radius:10px;padding:13px;margin-top:21px;background:#fff;color:#101216;font-weight:700}
+.workspace{display:none;width:100%;height:100%;flex-direction:column}.toolbar{height:58px;min-height:58px;background:#111419;border-bottom:1px solid #292e36;display:flex;align-items:center;gap:8px;padding:9px 12px}.title{font-weight:700;margin-right:auto}.tool{background:#1b2027;color:#e7eaf0;border:1px solid #303640;border-radius:8px;padding:8px 11px}
+.grid{flex:1;min-height:0;display:grid;gap:8px;padding:8px;background:#080a0d;overflow:hidden}.panel{position:relative;min-width:0;min-height:0;background:#11151a;border:1px solid #2b3139;border-radius:10px;overflow:hidden}.panel-head{position:absolute;z-index:100;top:6px;left:6px;right:6px;height:34px;display:flex;align-items:center;gap:5px;background:#111419e8;border:1px solid #303640;border-radius:7px;padding:4px;opacity:.35;transition:.15s}.panel:hover .panel-head{opacity:1}.num{font-size:11px;color:#b7bec8;margin-right:auto;padding-left:4px}.small{font-size:11px;background:#20252d;color:#e0e4e9;border:1px solid #353b45;border-radius:5px;padding:5px 7px}.zoom-value{min-width:48px;text-align:center}.panel-web{position:absolute;z-index:10;left:0;right:0;top:0;bottom:0;border:0;background:#11151a}.panel.show .panel-head{opacity:1}.urlbox{position:absolute;z-index:120;top:46px;left:7px;right:7px;display:none;background:#0d1014f2;border:1px solid #303640;border-radius:8px;padding:7px}.panel.show .urlbox{display:block}.urlbox input{font-size:12px;padding:8px}.urlbox button{width:100%;margin-top:5px;padding:7px;border:0;border-radius:6px}.note{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;text-align:center;color:#7f8995;font-size:12px;padding:25px;background:#11151a}.note strong{display:block;color:#b9c0ca;margin-bottom:7px}
 </style>
 </head>
 <body>
-<section class="setup" id="setup">
-<div class="card">
-<div class="icon">▦</div><h1>Crear un MultiView</h1>
-<p class="sub">Cada panel tiene su propio navegador embebido. Esto permite cargar páginas que no aceptan iframes y adaptar reproductores de video.</p>
-<label>Cantidad de paneles</label><input id="count" type="number" min="1" max="30" value="4">
-<label>Distribución</label><select id="cols"><option value="auto">Automática</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
-<button class="primary" id="create">Crear MultiView</button>
-</div></section>
-
-<section class="workspace" id="workspace">
-<div class="toolbar"><div class="title">▦ MultiView</div><button class="tool" id="add">＋ Panel</button><button class="tool" id="reset">Reconfigurar</button></div>
-<div class="grid" id="grid"></div>
-</section>
-
+<section class="setup" id="setup"><div class="card"><div class="icon">▦</div><h1>Crear un MultiView</h1><p class="sub">Cada rectángulo tiene su propio navegador independiente.</p><label>Cantidad de paneles</label><input id="count" type="number" min="1" max="30" value="4"><label>Distribución</label><select id="cols"><option value="auto">Automática</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select><button class="primary" id="create">Crear MultiView</button></div></section>
+<section class="workspace" id="workspace"><div class="toolbar"><div class="title">▦ MultiView</div><button class="tool" id="add">＋ Panel</button><button class="tool" id="reset">Reconfigurar</button></div><div class="grid" id="grid"></div></section>
 <script>
-const setup=document.getElementById('setup');
-const workspace=document.getElementById('workspace');
-const grid=document.getElementById('grid');
-const status=document.createElement('div');
-status.style.cssText='position:fixed;left:12px;bottom:12px;z-index:99999;background:#171b21;color:#cbd2dc;border:1px solid #343b45;border-radius:8px;padding:8px 10px;font:12px Arial;display:none;max-width:70vw;';
-document.body.appendChild(status);
-function showStatus(msg, error=false){ status.textContent=msg; status.style.display='block'; status.style.borderColor=error?'#9b3b3b':'#343b45'; if(!error)setTimeout(()=>status.style.display='none',3000); }
-
+const setup=document.getElementById('setup'),workspace=document.getElementById('workspace'),grid=document.getElementById('grid');
 let count=0,mode='auto',panels=new Map();
-function api(){
-  if(!window.multiview){
-    showStatus('Error: la comunicación con MultiView no está disponible. Revisá la consola.',true);
-    throw new Error('window.multiview no está disponible');
-  }
-  return window.multiview;
-}
 function cols(n){if(mode!=='auto')return +mode;if(n<=1)return 1;if(n<=4)return 2;if(n<=9)return 3;if(n<=16)return 4;if(n<=25)return 5;return 6}
-function norm(v){v=String(v||'').trim();if(!v)return '';if(v.toLowerCase().startsWith('http://') || v.toLowerCase().startsWith('https://'))return v;return 'https://'+v}
-function setGrid(){const c=cols(count);grid.style.gridTemplateColumns=`repeat(${c},minmax(0,1fr))`;grid.style.gridTemplateRows=`repeat(${Math.ceil(count/c)},minmax(0,1fr))`}
-async function sync(){
-  setGrid();
-  const out=[];
-  for(const [id,p] of panels){
-    const r=p.el.getBoundingClientRect();
-    out.push({id,rect:{x:r.left,y:r.top,width:r.width,height:r.height}});
-  }
-  try { await api().updateRects(out); } catch(e) { showStatus(`Error al ajustar paneles: ${e.message}`,true); }
-}
-async function addPanel(){
-  count++;
-  const number=count;
-  const id='p'+number;
-  const el=document.createElement('div');
-  el.className='panel';
-  el.innerHTML=`<div class="panel-head"><span class="num">Panel ${number}</span><button class="small back" title="Atrás">←</button><button class="small zoom-out" title="Alejar">−</button><button class="zoom-label" title="Elegir zoom exacto">100%</button><button class="small zoom-in" title="Acercar">＋</button><button class="small zoom-reset" title="Zoom inicial">1:1</button><button class="small url" title="Cambiar URL">URL</button><button class="small reload" title="Recargar">↻</button><button class="small clear" title="Limpiar">×</button></div><div class="panel-host"><div class="note"><div><strong>Cargá una URL</strong>El sitio se mostrará dentro de este rectángulo.</div></div></div><div class="urlbox"><input placeholder="https://ejemplo.com"><button>Cargar</button></div>`;
-  grid.appendChild(el);
-  const input=el.querySelector('.urlbox input');
-  const p={el,id,url:''};panels.set(id,p);
-
-  async function load(v){
-    v=norm(v); if(!v)return;
-    p.url=v;
-    el.querySelector('.note')?.remove();
-    const r=el.getBoundingClientRect();
-    try {
-      api().createView({id,url:v,rect:{x:r.left,y:r.top,width:r.width,height:r.height}}).then(result=>{
-        if(!result?.ok) showStatus(`No se pudo crear Panel ${number}: ${result?.error||'error desconocido'}`,true);
-      }).catch(e=>showStatus(`No se pudo crear Panel ${number}: ${e.message}`,true));
-    } catch(e) { showStatus(`No se pudo crear Panel ${number}: ${e.message}`,true); }
-  }
-  const zoomLabel=el.querySelector('.zoom-label');
-  let zoom=1;
-  function showZoom(v){ zoom=v; zoomLabel.textContent=Math.round(v*100)+'%'; }
-  zoomLabel.onclick=()=>{
-    const raw=window.prompt('Zoom del panel (25 a 200):',String(Math.round(zoom*100)));
-    if(raw===null)return;
-    const pct=Math.max(25,Math.min(200,Number(raw)||100));
-    showZoom(pct/100);
-    api().setZoom({id,zoom:pct/100}).catch(e=>showStatus(`Zoom: ${e.message}`,true));
-  };
-  function changeZoom(delta){
-    const next=Math.max(0.25,Math.min(2,Math.round((zoom+delta)*20)/20));
-    showZoom(next);
-    api().setZoom({id,zoom:next}).catch(e=>showStatus(`Zoom: ${e.message}`,true));
-  }
-  el.querySelector('.back').onclick=()=>api().goBack({id});
-  el.querySelector('.zoom-out').onclick=()=>changeZoom(-0.05);
-  el.querySelector('.zoom-in').onclick=()=>changeZoom(0.05);
-  el.querySelector('.zoom-reset').onclick=()=>{
-    const next=/^https?:\/\/(?:www\.)?formula-timer\.com(?:\/|$)/i.test(p.url) ? 0.55 : 1;
-    showZoom(next);
-    api().setZoom({id,zoom:next}).catch(e=>showStatus(`Zoom: ${e.message}`,true));
-  };
-  el.querySelector('.url').onclick=()=>{
-    const value=window.prompt('URL del panel:',p.url||'https://');
-    if(value!==null && value.trim()) load(value);
-  };
-  el.querySelector('.urlbox button').onclick=()=>{load(input.value);el.classList.remove('show')};
-  input.onkeydown=e=>{if(e.key==='Enter'){load(input.value);el.classList.remove('show')}};
-  el.querySelector('.reload').onclick=()=>api().reload({id});
-  el.querySelector('.clear').onclick=async()=>{
-    await api().removeView({id});p.url='';
-    el.querySelector('.panel-host').innerHTML='<div class="note"><div><strong>Cargá una URL</strong>El sitio se mostrará dentro de este rectángulo.</div></div>';
-  };
-  el.addEventListener('dragover',e=>e.preventDefault());
-  el.addEventListener('drop',e=>{e.preventDefault();const u=e.dataTransfer.getData('text/uri-list')||e.dataTransfer.getData('text/plain')||e.dataTransfer.getData('text');if(u)load(u.split('\n')[0])});
-  setGrid();
-}
-
-document.getElementById('create').onclick=()=>{
-  // La creación de la cuadrícula es 100% local y no espera a Electron.
-  // Así la interfaz nunca puede quedar bloqueada si IPC tarda o falla.
-  try{
-    const raw=Number(document.getElementById('count').value);
-    const targetCount=Math.max(1,Math.min(30,Number.isFinite(raw)?Math.floor(raw):4));
-    mode=document.getElementById('cols').value;
-    showStatus(`Creando ${targetCount} panel${targetCount===1?'':'es'}...`);
-    setup.style.display='none';
-    workspace.style.display='flex';
-    count=0;
-    panels.clear();
-    grid.innerHTML='';
-    for(let i=0;i<targetCount;i++) addPanel();
-    setGrid();
-    // IPC se inicia después y nunca bloquea la creación de la interfaz.
-    if(window.multiview && typeof window.multiview.ping==='function'){
-      window.multiview.ping().then(r=>{
-        if(r?.ok) showStatus('MultiView listo.');
-      }).catch(e=>showStatus(`IPC: ${e.message}`,true));
-    }
-  }catch(e){
-    console.error(e);
-    showStatus(`No se pudo crear el MultiView: ${e.message}`,true);
-  }
-};
-document.getElementById('add').onclick=async()=>{if(count<30){await addPanel();await sync()}};
-document.getElementById('reset').onclick=async()=>{
-  try{ if(window.multiview) await window.multiview.clearAll(); }catch(e){}
-  location.reload();
-};
-window.addEventListener('resize',()=>sync());
-if(window.multiview){
-  window.multiview.on('mv-error',d=>showStatus(`Panel: ${d.errorDescription||'error de carga'}`,true));
-  window.multiview.on('mv-ui-error',d=>showStatus(d.message||'Error de Electron',true));
-  window.multiview.on('mv-popup-blocked',()=>showStatus('Publicidad bloqueada.',false));
-  window.multiview.on('mv-zoom',d=>{
-    const p=panels.get(d.id);
-    if(p){ const label=p.el.querySelector('.zoom-label'); if(label) label.textContent=Math.round(d.zoom*100)+'%'; }
-  });
-}
-</script>
-</body></html>
+function norm(v){v=(v||'').trim();if(!v)return '';return /^https?:\/\//i.test(v)?v:'https://'+v}
+function applyGrid(){const c=cols(count);grid.style.gridTemplateColumns=`repeat(${c},minmax(0,1fr))`;grid.style.gridTemplateRows=`repeat(${Math.ceil(count/c)},minmax(0,1fr))`}
+function destroyPanel(p){try{p.web.stop();p.web.remove();}catch{}p.url='';}
+function destroyAll(){for(const p of panels.values())destroyPanel(p);panels.clear();count=0;}
+function setZoom(p,z){z=Math.max(.25,Math.min(2,z));p.zoom=z;p.web.setZoomFactor(z);p.zoomLabel.textContent=Math.round(z*100)+'%';}
+function initialZoom(url){try{return new URL(url).hostname.toLowerCase().endsWith('formula-timer.com')?.55:1}catch{return 1}}
+function loadPanel(p,url){url=norm(url);if(!url)return;p.url=url;p.note.style.display='none';p.web.src=url;p.web.addEventListener('did-finish-load',()=>{setZoom(p,initialZoom(p.url));if(isTV(p.url))focusTV(p.web);},{once:true});}
+function isTV(url){try{const h=new URL(url).hostname.toLowerCase();return h==='tvlibreonline.me'||h.endsWith('.tvlibreonline.me')}catch{return false}}
+function focusTV(web){const code=`(()=>{const v=[...document.querySelectorAll('video')].sort((a,b)=>(b.clientWidth*b.clientHeight)-(a.clientWidth*a.clientHeight))[0];if(!v)return false;document.documentElement.style.cssText+=';width:100%!important;height:100%!important;overflow:hidden!important;margin:0!important;padding:0!important';document.body.style.cssText+=';width:100%!important;height:100%!important;overflow:hidden!important;margin:0!important;padding:0!important;background:#000!important';let keep=new Set(),n=v;while(n&&n!==document.body){keep.add(n);n=n.parentElement}for(const el of [...document.body.children])if(!keep.has(el))el.style.setProperty('display','none','important');let p=v.parentElement;while(p&&p!==document.body){for(const [k,val] of Object.entries({position:'absolute',inset:'0',width:'100%',height:'100%',maxWidth:'none',maxHeight:'none',margin:'0',padding:'0',overflow:'hidden'}))p.style.setProperty(k,val,'important');p=p.parentElement}for(const [k,val] of Object.entries({position:'absolute',inset:'0',width:'100%',height:'100%',maxWidth:'100%',maxHeight:'100%',objectFit:'contain',background:'#000',margin:'0',padding:'0'}))v.style.setProperty(k,val,'important');return true})()`;try{web.executeJavaScript(code).then(ok=>{if(!ok)setTimeout(()=>focusTV(web),1200)})}catch{}}
+function addPanel(){if(count>=30)return;count++;const id='p'+count;const el=document.createElement('div');el.className='panel';el.innerHTML=`<div class="panel-head"><span class="num">Panel ${count}</span><button class="small back">←</button><button class="small minus">−</button><button class="small zoom-value">100%</button><button class="small plus">＋</button><button class="small resetzoom">1:1</button><button class="small url">URL</button><button class="small reload">↻</button><button class="small clear">×</button></div><div class="note"><div><strong>Cargá una URL</strong>El sitio se mostrará dentro de este rectángulo.</div></div><webview class="panel-web" partition="persist:mv-${id}" allowpopups="false"></webview><div class="urlbox"><input placeholder="https://ejemplo.com"><button>Cargar</button></div>`;grid.appendChild(el);const web=el.querySelector('.panel-web'),input=el.querySelector('.urlbox input'),p={id,el,web,input,note:el.querySelector('.note'),zoomLabel:el.querySelector('.zoom-value'),zoom:1,url:''};panels.set(id,p);
+const openURL=()=>{el.classList.toggle('show');if(el.classList.contains('show'))input.focus()};el.querySelector('.url').onclick=openURL;el.querySelector('.urlbox button').onclick=()=>{loadPanel(p,input.value);el.classList.remove('show')};input.onkeydown=e=>{if(e.key==='Enter'){loadPanel(p,input.value);el.classList.remove('show')}};
+el.querySelector('.back').onclick=()=>{try{if(web.canGoBack())web.goBack()}catch{}};el.querySelector('.reload').onclick=()=>web.reload();el.querySelector('.clear').onclick=()=>{try{web.stop();web.src='about:blank'}catch{}p.url='';p.note.style.display='flex'};el.querySelector('.minus').onclick=()=>setZoom(p,p.zoom-.05);el.querySelector('.plus').onclick=()=>setZoom(p,p.zoom+.05);el.querySelector('.resetzoom').onclick=()=>setZoom(p,initialZoom(p.url));el.querySelector('.zoom-value').onclick=()=>{const v=prompt('Zoom en porcentaje (25-200):',String(Math.round(p.zoom*100)));if(v!==null&&!isNaN(v))setZoom(p,Number(v)/100)};
+web.addEventListener('new-window',e=>{e.preventDefault()});web.addEventListener('will-navigate',e=>{const u=e.url||'';if(looksAd(u)){e.preventDefault();return}p.url=u});web.addEventListener('did-navigate',e=>{p.url=e.url||p.url;if(isTV(p.url))focusTV(web)});web.addEventListener('did-navigate-in-page',()=>{if(isTV(p.url))focusTV(web)});applyGrid();}
+function looksAd(u){try{const h=new URL(u).hostname.toLowerCase(),x=u.toLowerCase();return ['doubleclick.net','googlesyndication.com','googleadservices.com','adnxs.com','exoclick.com','popads.net','popcash.net','propellerads.com','onclickalgo.com','adsterra.com','trafficjunky.com','juicyads.com'].some(d=>h.includes(d))||/(^|[._/-])(ads?|adserver|advert|banner|popup|popunder)([._/-]|$)/i.test(h+new URL(u).pathname)}catch{return false}}
+document.getElementById('create').onclick=()=>{const desired=Math.max(1,Math.min(30,+document.getElementById('count').value||4));mode=document.getElementById('cols').value;setup.style.display='none';workspace.style.display='flex';count=0;panels.clear();for(let i=0;i<desired;i++)addPanel();applyGrid()};document.getElementById('add').onclick=()=>addPanel();document.getElementById('reset').onclick=()=>{destroyAll();workspace.style.display='none';setup.style.display='flex'};window.addEventListener('resize',applyGrid);
+</script></body></html>
