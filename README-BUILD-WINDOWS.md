@@ -1,7 +1,6 @@
-# Compilación Windows
+# Compilar en GitHub
 
-1. Copiar el contenido de este proyecto al repositorio MultiView existente.
-2. No reemplazar/eliminar `.git`.
-3. Commit y push.
-4. Ejecutar GitHub Actions -> Build Windows.
-5. Descargar el artefacto generado por el workflow.
+1. Reemplazá los archivos de tu repositorio por los de esta carpeta. No borres `.git`.
+2. Subí los cambios a `main`/`master`.
+3. GitHub Actions -> Build Windows.
+4. Descargá el artefacto `MultiView-Windows`.
